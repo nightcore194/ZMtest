@@ -1,7 +1,9 @@
+import logging
 import os
 import time
 import jwt
 from dotenv import load_dotenv
+from sqlalchemy import select
 from werkzeug.security import check_password_hash
 
 from models.engine import db_session
@@ -17,8 +19,10 @@ JWT_ALGORITHM = "HS256"
 async def sign_jwt(payload: dict) -> dict:
     expire_time = 600
     async with db_session() as db:
-        user = await db.query(User).filter_by(email=payload["email"]).first()
-        if user and check_password_hash(user.password, payload["password"]):
+        user = await db.execute(select(User).filter_by(email=payload["email"]))
+        user = user.scalars().first()
+        password = payload["password"]
+        if user and check_password_hash(user.password, password):
             payload["expires"] = time.time() + expire_time
             token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
             return {"result": "Authorized!", "status": 200, "access_token": token, "expires_in": expire_time}
@@ -30,7 +34,8 @@ async def decode_jwt(token: str) -> dict:
     try:
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         async with db_session() as db:
-            user = await db.query(User).filter_by(email=decoded_token["email"]).first()
+            user = await db.execute(select(User).filter_by(email=decoded_token["email"]))
+            user = user.scalars().first()
             if user and check_password_hash(user.password, decoded_token["password"]):
                 return decoded_token if decoded_token["expires"] >= time.time() else None
         return {}

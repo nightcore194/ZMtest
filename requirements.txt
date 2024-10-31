@@ -8,3 +8,4 @@ pymysql==1.1.1
 PyJWT
 python-dotenv
 uvicorn
+cryptography

@@ -8,6 +8,5 @@ services:
     ports:
         - "8000:8000"
     volumes:
-      - .:/prod
-      - /prod/.venv
+      - /prod/
     command: uvicorn wsgi:app --host 0.0.0.0
