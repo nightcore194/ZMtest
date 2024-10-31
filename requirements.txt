@@ -1,0 +1,10 @@
+alembic==1.13.1
+sqlalchemy-serializer==1.4.12
+fastapi==0.111.0
+Werkzeug==3.0.3
+sqlalchemy[asyncio]==2.0.30
+aiomysql==0.2.0
+pymysql==1.1.1
+PyJWT
+python-dotenv
+uvicorn
